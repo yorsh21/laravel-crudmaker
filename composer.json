@@ -1,5 +1,5 @@
 {
-    "name": "yorsh21/crudmaker",
+    "name": "yorsh/laravel-crudmaker",
     "type": "library",
     "description": "Create controllers and views the an model from migrations files",
     "authors": [
@@ -14,13 +14,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Yorsh21\\CrudMaker\\": "src/"
+            "Yorsh\\CrudMaker\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Yorsh21\\CrudMaker\\ServiceProvider"
+                "Yorsh\\CrudMaker\\ServiceProvider"
             ]
         }
     },
