@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class MODEL_NAME extends Model
+{
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'TABLE_NAME';
+
+    /**
+    * The database primary key value.
+    *
+    * @var string
+    */
+    protected $primaryKey = 'PRIMARY_KEY';
+
+    /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [FIELDS];
+
+
+    RELATIONSHIPS
+
+    public function BELONGS_TO(){
+        return $this->belongsTo('App\Models\BELONGS_TO_URL');
+    }
+
+    public function HAS_MANY(){
+        return $this->hasMany('App\Models\HAS_MANY_URL');
+    }
+    
+}

@@ -1,8 +1,10 @@
 <?php 
-namespace Yorsh21\CrudMaker;
+
+namespace Yorsh\CrudMaker;
 
 // use Yorsh21\CrudMaker;
 use Exception;
+use Yorsh\CrudMaker\CrudCommand;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider; 
 
 
@@ -24,11 +26,10 @@ class ServiceProvider extends IlluminateServiceProvider
         //$configPath = __DIR__.'/../config/crudmaker.php';
         //$this->publishes([$configPath => config_path('crudmaker.php')], 'config');
 
-        $this->loadRoutesFrom(__DIR__.'/routes.php');
+        $this->loadRoutesFrom(__DIR__.'\\..\\routes\\routes.php');
 
-        /*$this->commands([
-            FooCommand::class,
-            BarCommand::class,
-        ]);*/
+        $this->commands([
+            CrudCommand::class,
+        ]);
     }
 }

@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\MODEL_NAME;
+
+class MODEL_NAMEController extends Controller
+{
+    /**
+     * Constructur with roles middleware.
+     */
+    public function __construct()
+    {
+        //$this->middleware('MIDDLEWARE');
+    }
+    
+    /**
+     * Display a listing of the MODEL_NAMEs.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index(Request $request)
+    {
+        $MODEL_VARIABLE = MODEL_NAME::all();
+
+        return view('VIEW_PATH.index', compact('MODEL_VARIABLE'));
+    }
+
+    /**
+     * Show the form for creating a new MODEL_NAME.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        return view('VIEW_PATH.create');
+    }
+
+    /**
+     * Store a newly created MODEL_NAME in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function store(Request $request)
+    {
+        $requestData = $request->all();
+        MODEL_NAME::create($requestData);
+
+        return redirect()->route('ROUTE_INDEX');
+    }
+
+    /**
+     * Display the MODEL_NAME.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
+
+        return view('VIEW_PATH.show', compact('MODEL_VARIABLE'));
+    }
+
+    /**
+     * Show the form for editing the MODEL_NAME.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
+
+        return view('VIEW_PATH.edit', compact('MODEL_VARIABLE'));
+    }
+
+    /**
+     * Update the MODEL_NAME in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param  int  $id
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $requestData = $request->all();
+        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
+        $MODEL_VARIABLE->update($requestData);
+
+        return redirect()->route('ROUTE_INDEX');
+    }
+
+    /**
+     * Remove the MODEL_NAME from storage.
+     *
+     * @param  int  $id
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function destroy($id)
+    {
+        MODEL_NAME::destroy($id);
+
+        return redirect()->route('ROUTE_INDEX');
+    }
+}
