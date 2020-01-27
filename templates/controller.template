@@ -23,9 +23,9 @@ class MODEL_NAMEController extends Controller
      */
     public function index(Request $request)
     {
-        $MODEL_VARIABLE = MODEL_NAME::all();
+        $PLURAL_VARIABLE = MODEL_NAME::all();
 
-        return view('VIEW_PATH.index', compact('MODEL_VARIABLE'));
+        return view('VIEW_DIRECTORY.index', compact('PLURAL_VARIABLE'));
     }
 
     /**
@@ -35,7 +35,7 @@ class MODEL_NAMEController extends Controller
      */
     public function create()
     {
-        return view('VIEW_PATH.create');
+        return view('VIEW_DIRECTORY.create');
     }
 
     /**
@@ -50,7 +50,7 @@ class MODEL_NAMEController extends Controller
         $requestData = $request->all();
         MODEL_NAME::create($requestData);
 
-        return redirect()->route('ROUTE_INDEX');
+        return redirect()->route('ROUTE_BASE.index');
     }
 
     /**
@@ -62,9 +62,9 @@ class MODEL_NAMEController extends Controller
      */
     public function show($id)
     {
-        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
+        $SINGULAR_VARIABLE = MODEL_NAME::findOrFail($id);
 
-        return view('VIEW_PATH.show', compact('MODEL_VARIABLE'));
+        return view('VIEW_DIRECTORY.show', compact('SINGULAR_VARIABLE'));
     }
 
     /**
@@ -76,9 +76,9 @@ class MODEL_NAMEController extends Controller
      */
     public function edit($id)
     {
-        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
+        $SINGULAR_VARIABLE = MODEL_NAME::findOrFail($id);
 
-        return view('VIEW_PATH.edit', compact('MODEL_VARIABLE'));
+        return view('VIEW_DIRECTORY.edit', compact('SINGULAR_VARIABLE'));
     }
 
     /**
@@ -92,10 +92,10 @@ class MODEL_NAMEController extends Controller
     public function update(Request $request, $id)
     {
         $requestData = $request->all();
-        $MODEL_VARIABLE = MODEL_NAME::findOrFail($id);
-        $MODEL_VARIABLE->update($requestData);
+        $SINGULAR_VARIABLE = MODEL_NAME::findOrFail($id);
+        $SINGULAR_VARIABLE->update($requestData);
 
-        return redirect()->route('ROUTE_INDEX');
+        return redirect()->route('ROUTE_BASE.index');
     }
 
     /**
@@ -109,6 +109,6 @@ class MODEL_NAMEController extends Controller
     {
         MODEL_NAME::destroy($id);
 
-        return redirect()->route('ROUTE_INDEX');
+        return redirect()->route('ROUTE_BASE.index');
     }
 }

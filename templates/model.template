@@ -28,14 +28,6 @@ class MODEL_NAME extends Model
     protected $fillable = [FIELDS];
 
 
-    RELATIONSHIPS
-
-    public function BELONGS_TO(){
-        return $this->belongsTo('App\Models\BELONGS_TO_URL');
-    }
-
-    public function HAS_MANY(){
-        return $this->hasMany('App\Models\HAS_MANY_URL');
-    }
+RELATIONSHIPS
     
 }

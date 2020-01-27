@@ -32,7 +32,11 @@ class CrudCommand extends Command
     private $models_path = '';
     private $controllers_path = '';
     private $views_path = '';
+    private $view_directory = '';
     private $migrations_path = '';
+    private $singular_variable = "";
+    private $plural_variable = "";
+    private $route_path = "";
 
     /**
      * Create a new command instance.
@@ -47,7 +51,7 @@ class CrudCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param  \App\DripEmailer  $drip
+     * @param  \App\CrudCommand
      * @return mixed
      */
     public function handle()
@@ -57,8 +61,9 @@ class CrudCommand extends Command
         $this->migration_name = $this->argument('migration');
         $this->models_path = $base_path . '\\app\\Models';
         $this->controllers_path = $base_path . '\\app\\Http\\Controllers';
-        $this->views_path = $base_path . '\\app\\resources\\views';
+        $this->views_path = $base_path . '\\resources\\views';
         $this->migrations_path = $base_path . '\\database\\migrations';
+        $this->route_path = $base_path . '\\routes\\web.php';
 
         $this->getFields();
         $this->getModelName();
@@ -66,6 +71,7 @@ class CrudCommand extends Command
         $this->createModel();
         $this->createController();
         $this->createViews();
+        $this->addRourtes();
     }
 
 
@@ -80,11 +86,11 @@ class CrudCommand extends Command
         }
 
         if(count($selected) == 0) {
-            echo "Migration file not fond", PHP_EOL;
+            echo "Migration file not found", PHP_EOL;
             exit;
         }
         elseif(count($selected) == 1) {
-            echo "Migration file fond: " . $selected[0] . "", PHP_EOL;
+            echo "Migration file found: " . $selected[0] . "", PHP_EOL;
 
             $file_selected = fopen($this->migrations_path . "\\" . $selected[0], "r") or die("Unable to open file $selected[0]!");
             $raw_file = fread($file_selected, filesize($this->migrations_path . "\\" . $selected[0]));
@@ -140,8 +146,8 @@ class CrudCommand extends Command
                         }
                     }
                     else {
-                        if (strpos($step2[0], 'ncrements(') !== false) {
-                            $this->primary_key = $name;
+                        if (strpos($step2[0], 'ncrements') !== false) {
+                            $this->primary_key = "$name";
                         }
 
                         array_push($fields, [
@@ -192,18 +198,62 @@ class CrudCommand extends Command
         $contents = str_replace("RELATIONSHIPS", $this->getRelationships(), $contents);
 
         file_put_contents("$this->models_path\\$this->model_name.php", $contents);     // Save our content to the file.
-
-        exit;
     }
+
 
     private function createController() {
-        mkdir($this->controllers_path . "/ruta/a/mi/directorio", 0700);
+        if (!file_exists($this->controllers_path)) {
+            mkdir($this->controllers_path . "\\" . $this->model_name . "Controller", 0700);
+        }
 
+        $file = fopen(__DIR__.'\\..\\templates\\controller.template', "r") or die("Unable to open file model.template!");
+        $contents = fread($file, filesize(__DIR__.'\\..\\templates\\controller.template'));
+        fclose($file);
+
+        $contents = str_replace("MODEL_NAME", $this->model_name, $contents);
+        $contents = str_replace("SINGULAR_VARIABLE", $this->singular_variable, $contents);
+        $contents = str_replace("PLURAL_VARIABLE", $this->plural_variable, $contents);
+        $contents = str_replace("VIEW_DIRECTORY", $this->view_directory, $contents);
+        $contents = str_replace("ROUTE_BASE", $this->view_directory, $contents);
+
+
+        file_put_contents("$this->controllers_path\\$this->model_name" . "Controller.php", $contents);     // Save our content to the file.
     }
+
 
     private function createViews() {
-        mkdir($this->views_path . "/ruta/a/mi/directorio", 0700);
+        if (!file_exists($this->views_path . "\\" . $this->view_directory)) {
+            mkdir($this->views_path . "\\" . $this->view_directory, 0700);
+        }
+
+        $file = fopen(__DIR__.'\\..\\templates\\index.view.template', "r") or die("Unable to open file model.template!");
+        $contents = fread($file, filesize(__DIR__.'\\..\\templates\\index.view.template'));
+        fclose($file);
+
+        $contents = str_replace("MODEL_NAME", $this->model_name, $contents);
+        $contents = str_replace("PLURAL_VARIABLE", $this->plural_variable, $contents);
+        $contents = str_replace("ROUTE_BASE", $this->view_directory, $contents);
+        $contents = str_replace("HEADER_TABLE", $this->getFieldsHeaderTable(), $contents);
+        $contents = str_replace("BODY_TABLE", $this->getFieldsBodyTable(), $contents);
+
+        $contents = str_replace("MODEL_NAME", $this->model_name, $contents);
+
+
+        file_put_contents("$this->views_path\\$this->view_directory\\index.blade.php", $contents);     // Save our content to the file.
     }
+
+    private function addRourtes() {
+        $file = fopen($this->route_path, "r") or die("Unable to open file model.template!");
+        $contents = fread($file, filesize($this->route_path));
+        fclose($file);
+        
+        if (strpos($contents, "Route::resource('$this->view_directory', '$this->model_name" . "Controller');") === false) {
+            $resource = "\n\nRoute::resource('$this->view_directory', '$this->model_name" . "Controller');";
+
+            file_put_contents($this->route_path, $resource, FILE_APPEND);
+        }
+    }
+
 
     private function getModelName() {
         $split = explode("_", $this->datatable_name);
@@ -214,11 +264,18 @@ class CrudCommand extends Command
 
         if(substr($model_name, -1) == "s") {
             $this->model_name = substr($model_name, 0, -1);
+            $this->singular_variable = substr($model_name, 0, -1);
+            $this->plural_variable = $model_name;
+            $this->view_directory = str_replace("_", "-", substr($this->datatable_name, 0, -1));
         }
         else {
             $this->model_name = $model_name;
+            $this->singular_variable = $model_name;
+            $this->plural_variable = $model_name . "s";
+            $this->view_directory = str_replace("_", "-", $this->datatable_name);
         }
     }
+
 
     private function getListFields() {
         $list = "";
@@ -229,18 +286,59 @@ class CrudCommand extends Command
             }
         }
 
-        return substr($list, 0, -2)
+        return substr($list, 0, -2);
     }
+
+
+    private function getFieldsHeaderTable() {
+        $list = "";
+        $append = "</th>\n\t\t\t\t\t\t\t\t\t\t";
+
+        foreach ($this->fields as $field) {
+            if (!empty($field["name"])) {
+                $list .= "<th>" . $field["name"] . $append;
+            }
+        }
+
+        return $list;
+    }
+
+
+    private function getFieldsBodyTable() {
+        $list = "";
+        $append = "\n\t\t\t\t\t\t\t\t\t\t";
+
+        foreach ($this->fields as $field) {
+            if (!empty($field["name"])) {
+                $list .= '<td>{{ $item->' . $field["name"] . ' }}</td>' . $append;
+            }
+        }
+
+        return $list;
+    }
+
 
     private function getRelationships() {
         $text = "";
-        $template = "public function BELONGS_TO(){ \n\t\treturn $this->belongsTo('App\Models\BELONGS_TO_URL'); \n\t} \n\n";
+        $template = "\tpublic function BELONGS_TO(){ \n\t\treturn \$this->belongsTo('App\Models\BELONGS_TO_URL'); \n\t} \n\n";
+        // $template = 'public function HAS_MANY(){ \n\t\treturn \$this->belongsTo(\'App\Models\HAS_MANY_URL\'); \n\t} \n\n';
 
         foreach ($this->fields as $field) {
             if (isset($field["reference"])) {
-                $temp = str_replace(BELONGS_TO, replace, $template); 
+                $split = explode("_", $field["table"]);
+                $capit = array_map(function($item) { 
+                    return ucfirst($item); 
+                }, $split);
+                $name = join($capit);
+
+                $temp = str_replace('BELONGS_TO_URL', $name, $template);
+                $temp = str_replace('BELONGS_TO', str_replace("_id", "", $field["name"]), $temp);
+
+                $text .= $temp;
             }
         }
+
+        return $text;
     }
 
 }
